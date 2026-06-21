@@ -3,7 +3,9 @@ import type { D1Database } from '@cloudflare/workers-types';
 // Session cookie name + a 30-day lifetime.
 export const SESSION_COOKIE = 'gs_session';
 const SESSION_TTL_MS = 1000 * 60 * 60 * 24 * 30;
-const PBKDF2_ITERATIONS = 600_000;
+// Workers' free plan caps CPU time per request, so PBKDF2 iterations must stay modest.
+// 100k is Cloudflare's own documented example value. (Raise on Workers Paid if desired.)
+const PBKDF2_ITERATIONS = 100_000;
 
 type UserRow = {
   id: number;
@@ -78,12 +80,15 @@ export async function createUser(
   db: D1Database,
   username: string,
   password: string
-): Promise<void> {
+): Promise<number> {
   const { hash, salt } = await hashPassword(password);
-  await db
-    .prepare('INSERT INTO users (username, pw_hash, pw_salt, created_at) VALUES (?, ?, ?, ?)')
+  const row = await db
+    .prepare(
+      'INSERT INTO users (username, pw_hash, pw_salt, created_at) VALUES (?, ?, ?, ?) RETURNING id'
+    )
     .bind(username.trim(), hash, salt, Date.now())
-    .run();
+    .first<{ id: number }>();
+  return row!.id;
 }
 
 export async function verifyLogin(

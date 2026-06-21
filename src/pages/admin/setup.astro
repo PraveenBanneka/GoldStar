@@ -3,7 +3,6 @@ import Admin from '../../layouts/Admin.astro';
 import {
   countUsers,
   createUser,
-  verifyLogin,
   createSession,
   SESSION_COOKIE,
   sessionCookieOptions,
@@ -30,13 +29,9 @@ if (Astro.request.method === 'POST') {
     else if (password.length < 8) error = 'Password must be at least 8 characters.';
     else if (password !== confirm) error = 'Passwords do not match.';
     else {
-      await createUser(db, username, password);
-      const user = await verifyLogin(db, username, password);
-      if (user) {
-        Astro.cookies.set(SESSION_COOKIE, await createSession(db, user.id), sessionCookieOptions());
-        return Astro.redirect('/admin');
-      }
-      error = 'Could not create the account.';
+      const id = await createUser(db, username, password);
+      Astro.cookies.set(SESSION_COOKIE, await createSession(db, id), sessionCookieOptions());
+      return Astro.redirect('/admin');
     }
   }
 }
