@@ -15,7 +15,7 @@
 		{
 			"binding": "DB",
 			"database_name": "goldstar",
-			"database_id": "00000000-0000-0000-0000-000000000000",
+			"database_id": "f3e044ce-0cef-46a3-81f6-9be663064973",
 			"migrations_dir": "migrations"
 		}
 	],
