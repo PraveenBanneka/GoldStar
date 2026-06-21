@@ -1,0 +1,64 @@
+---
+import Admin from '../../layouts/Admin.astro';
+import { getAbout, type About } from '../../content/site/about';
+import { getDB } from '../../lib/cf';
+import { saveDraft, publish } from '../../lib/db';
+import { str, lines, pipePairs } from '../../lib/editor';
+
+const db = getDB();
+
+if (Astro.request.method === 'POST' && db) {
+  const form = await Astro.request.formData();
+  const action = String(form.get('action') || 'save');
+  const data: About = {
+    heading: str(form, 'heading'),
+    lead: str(form, 'lead'),
+    paragraphs: lines(form.get('paragraphs')),
+    highlights: pipePairs(form.get('highlights')).map((p) => ({ value: p.a, label: p.b })),
+  };
+  await saveDraft(db, 'about', data);
+  if (action === 'publish') await publish(db, 'about');
+  return Astro.redirect(`/admin/about?${action === 'publish' ? 'published' : 'saved'}=1`);
+}
+
+const a = await getAbout(db, { preview: true });
+const saved = Astro.url.searchParams.has('saved');
+const published = Astro.url.searchParams.has('published');
+const fieldCls = 'rounded-lg border border-black/10 bg-white px-3 py-2.5 text-sm';
+---
+
+<Admin title="Edit About — Goldstar Admin">
+  <a href="/admin" class="text-sm font-semibold text-brand-green hover:text-brand-gold">← Dashboard</a>
+  <h1 class="mt-2 font-heading text-2xl font-extrabold text-brand-green">About section</h1>
+
+  {(saved || published) && (
+    <p class="mt-4 rounded-lg bg-green-50 px-4 py-2 text-sm font-medium text-green-800 ring-1 ring-green-200">
+      {published ? 'Published — live on your site.' : 'Draft saved.'}
+    </p>
+  )}
+
+  <form method="POST" class="mt-6 grid max-w-2xl gap-5">
+    <label class="grid gap-1"><span class="text-sm font-semibold">Heading</span>
+      <input name="heading" value={a.heading} class={fieldCls} /></label>
+    <label class="grid gap-1"><span class="text-sm font-semibold">Lead paragraph</span>
+      <textarea name="lead" rows="3" class={fieldCls}>{a.lead}</textarea></label>
+    <label class="grid gap-1">
+      <span class="text-sm font-semibold">Body paragraphs</span>
+      <textarea name="paragraphs" rows="8" class={fieldCls}>{a.paragraphs.join('\n')}</textarea>
+      <span class="text-xs text-brand-ink/50">One paragraph per line.</span>
+    </label>
+    <label class="grid gap-1">
+      <span class="text-sm font-semibold">Highlights</span>
+      <textarea name="highlights" rows="4" class={fieldCls}>{a.highlights.map((h) => `${h.value} | ${h.label}`).join('\n')}</textarea>
+      <span class="text-xs text-brand-ink/50">One per line, format: <code>Value | Label</code> (e.g. <code>10+ | Years serving Central Texas</code>)</span>
+    </label>
+
+    <div class="flex flex-wrap items-center gap-3 border-t border-black/10 pt-5">
+      <button type="submit" name="action" value="save"
+        class="rounded-full bg-brand-green px-5 py-2.5 text-sm font-bold text-white hover:bg-brand-green-700">Save draft</button>
+      <button type="submit" name="action" value="publish"
+        class="rounded-full bg-brand-gold px-5 py-2.5 text-sm font-bold text-brand-green-700 hover:bg-brand-gold-300">Publish</button>
+      <a href="/?preview=1" target="_blank" class="text-sm font-semibold text-brand-green hover:text-brand-gold">Preview draft ↗</a>
+    </div>
+  </form>
+</Admin>

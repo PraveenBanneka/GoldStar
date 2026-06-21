@@ -1,0 +1,81 @@
+---
+import Admin from '../../layouts/Admin.astro';
+import { sectionStatuses, publishAll, type ContentSection } from '../../lib/db';
+import { getDB } from '../../lib/cf';
+
+const db = getDB();
+let flash = '';
+
+if (Astro.request.method === 'POST' && db) {
+  const form = await Astro.request.formData();
+  if (form.get('action') === 'publish-all') {
+    await publishAll(db);
+    flash = 'All changes published — your live site is up to date.';
+  }
+}
+
+const statuses = db ? await sectionStatuses(db) : [];
+const anyUnpublished = statuses.some((s) => s.hasUnpublished);
+
+const labels: Record<ContentSection, string> = {
+  hero: 'Hero',
+  services: 'Services',
+  portfolio: 'Portfolio',
+  reviews: 'Reviews',
+  about: 'About',
+  business: 'Business info',
+};
+---
+
+<Admin title="Dashboard — Goldstar Admin">
+  <div class="flex flex-wrap items-end justify-between gap-4">
+    <div>
+      <h1 class="font-heading text-3xl font-extrabold text-brand-green">Dashboard</h1>
+      <p class="mt-1 text-sm text-brand-ink/70">
+        Edit a section, save a draft, then publish when you’re ready. Published changes go live immediately.
+      </p>
+    </div>
+    <form method="POST">
+      <input type="hidden" name="action" value="publish-all" />
+      <button type="submit" disabled={!anyUnpublished}
+        class:list={[
+          'rounded-full px-5 py-2.5 text-sm font-bold transition',
+          anyUnpublished
+            ? 'bg-brand-gold text-brand-green-700 hover:bg-brand-gold-300'
+            : 'cursor-not-allowed bg-black/10 text-black/40',
+        ]}>
+        Publish all changes
+      </button>
+    </form>
+  </div>
+
+  {flash && (
+    <p class="mt-5 rounded-lg bg-green-50 px-4 py-3 text-sm font-medium text-green-800 ring-1 ring-green-200">
+      {flash}
+    </p>
+  )}
+
+  <div class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    {statuses.map((s) => (
+      <a href={`/admin/${s.section}`}
+        class="group rounded-2xl bg-white p-5 shadow-sm ring-1 ring-black/5 transition hover:-translate-y-0.5 hover:shadow-md">
+        <div class="flex items-center justify-between">
+          <h2 class="font-heading text-lg font-bold text-brand-green">{labels[s.section]}</h2>
+          {s.hasUnpublished ? (
+            <span class="rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide text-amber-700">
+              Draft
+            </span>
+          ) : (
+            <span class="rounded-full bg-green-100 px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide text-green-700">
+              Published
+            </span>
+          )}
+        </div>
+        <p class="mt-2 text-sm text-brand-ink/60">
+          {s.hasUnpublished ? 'Unpublished edits waiting.' : 'Up to date.'}
+          <span class="font-semibold text-brand-green group-hover:underline"> Edit →</span>
+        </p>
+      </a>
+    ))}
+  </div>
+</Admin>

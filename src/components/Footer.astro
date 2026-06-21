@@ -1,0 +1,46 @@
+---
+import { getBusiness } from '../content/site/business';
+import { siteContext } from '../lib/runtime';
+const { db, opts } = siteContext(Astro);
+const business = await getBusiness(db, opts);
+const year = new Date().getFullYear();
+---
+
+<footer class="bg-brand-green-700 text-white/80">
+  <div class="mx-auto grid max-w-7xl gap-10 px-5 py-14 md:grid-cols-3 md:px-8">
+    <div>
+      <img src={business.logo} alt={`${business.name} logo`} width="170" height="46" class="h-10 w-auto rounded bg-white/90 px-2 py-1" />
+      <p class="mt-4 max-w-xs text-sm leading-relaxed">{business.tagline}</p>
+      <p class="mt-4 text-sm">Based in {business.baseCity} · {business.yearsInBusiness} in business</p>
+    </div>
+
+    <div>
+      <h2 class="font-heading text-sm font-bold uppercase tracking-widest text-brand-gold-300">Contact</h2>
+      <ul class="mt-4 space-y-2 text-sm">
+        <li><a href={business.phoneHref} class="hover:text-brand-gold-300">{business.phoneDisplay}</a></li>
+        <li><a href={`mailto:${business.email}`} class="hover:text-brand-gold-300">{business.email}</a></li>
+        <li>{business.hours}</li>
+      </ul>
+      <ul class="mt-4 flex gap-4 text-sm">
+        {business.socials.map((s) => (
+          <li><a href={s.href} class="font-semibold underline underline-offset-2 hover:text-brand-gold-300">{s.label}</a></li>
+        ))}
+      </ul>
+    </div>
+
+    <div>
+      <h2 class="font-heading text-sm font-bold uppercase tracking-widest text-brand-gold-300">Service area</h2>
+      <p class="mt-4 text-sm leading-relaxed">{business.serviceArea.join(' · ')} &amp; neighboring Central Texas cities.</p>
+    </div>
+  </div>
+
+  <div class="border-t border-white/10">
+    <div class="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 px-5 py-5 text-xs text-white/60 sm:flex-row md:px-8">
+      <p>© {year} {business.name}. All rights reserved.</p>
+      <ul class="flex gap-5">
+        <li><a href="/privacy" class="hover:text-brand-gold-300">Privacy</a></li>
+        <li><a href="/terms" class="hover:text-brand-gold-300">Terms</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>

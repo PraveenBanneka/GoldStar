@@ -1,0 +1,103 @@
+---
+import Admin from '../../layouts/Admin.astro';
+import { getHero, type Hero } from '../../content/site/hero';
+import { getDB } from '../../lib/cf';
+import { saveDraft, publish } from '../../lib/db';
+import { str } from '../../lib/editor';
+
+const db = getDB();
+
+if (Astro.request.method === 'POST' && db) {
+  const form = await Astro.request.formData();
+  const action = String(form.get('action') || 'save');
+  const current = await getHero(db, { preview: true });
+  const data: Hero = {
+    headline: str(form, 'headline'),
+    subhead: str(form, 'subhead'),
+    primaryCta: { label: str(form, 'primaryLabel'), href: str(form, 'primaryHref') },
+    secondaryCta: { label: str(form, 'secondaryLabel'), href: str(form, 'secondaryHref') },
+    poster: str(form, 'poster'),
+    videoSources: current.videoSources,
+  };
+  await saveDraft(db, 'hero', data);
+  if (action === 'publish') await publish(db, 'hero');
+  return Astro.redirect(`/admin/hero?${action === 'publish' ? 'published' : 'saved'}=1`);
+}
+
+const hero = await getHero(db, { preview: true });
+const saved = Astro.url.searchParams.has('saved');
+const published = Astro.url.searchParams.has('published');
+---
+
+<Admin title="Edit Hero — Goldstar Admin">
+  <a href="/admin" class="text-sm font-semibold text-brand-green hover:text-brand-gold">← Dashboard</a>
+  <h1 class="mt-2 font-heading text-2xl font-extrabold text-brand-green">Hero section</h1>
+
+  {(saved || published) && (
+    <p class="mt-4 rounded-lg bg-green-50 px-4 py-2 text-sm font-medium text-green-800 ring-1 ring-green-200">
+      {published ? 'Published — live on your site.' : 'Draft saved.'}
+    </p>
+  )}
+
+  <form method="POST" class="mt-6 grid max-w-2xl gap-5">
+    <label class="grid gap-1">
+      <span class="text-sm font-semibold">Headline</span>
+      <input name="headline" value={hero.headline} required
+        class="rounded-lg border border-black/10 bg-white px-3 py-2.5 text-sm" />
+    </label>
+    <label class="grid gap-1">
+      <span class="text-sm font-semibold">Subhead</span>
+      <textarea name="subhead" rows="3"
+        class="rounded-lg border border-black/10 bg-white px-3 py-2.5 text-sm">{hero.subhead}</textarea>
+    </label>
+
+    <fieldset class="grid gap-3 rounded-xl border border-black/10 p-4">
+      <legend class="px-1 text-xs font-bold uppercase tracking-wide text-brand-ink/50">Primary button</legend>
+      <label class="grid gap-1">
+        <span class="text-sm font-semibold">Label</span>
+        <input name="primaryLabel" value={hero.primaryCta.label}
+          class="rounded-lg border border-black/10 bg-white px-3 py-2.5 text-sm" />
+      </label>
+      <label class="grid gap-1">
+        <span class="text-sm font-semibold">Link</span>
+        <input name="primaryHref" value={hero.primaryCta.href}
+          class="rounded-lg border border-black/10 bg-white px-3 py-2.5 text-sm" />
+      </label>
+    </fieldset>
+
+    <fieldset class="grid gap-3 rounded-xl border border-black/10 p-4">
+      <legend class="px-1 text-xs font-bold uppercase tracking-wide text-brand-ink/50">Secondary button</legend>
+      <label class="grid gap-1">
+        <span class="text-sm font-semibold">Label</span>
+        <input name="secondaryLabel" value={hero.secondaryCta.label}
+          class="rounded-lg border border-black/10 bg-white px-3 py-2.5 text-sm" />
+      </label>
+      <label class="grid gap-1">
+        <span class="text-sm font-semibold">Link</span>
+        <input name="secondaryHref" value={hero.secondaryCta.href}
+          class="rounded-lg border border-black/10 bg-white px-3 py-2.5 text-sm" />
+      </label>
+    </fieldset>
+
+    <label class="grid gap-1">
+      <span class="text-sm font-semibold">Poster image path</span>
+      <input name="poster" value={hero.poster}
+        class="rounded-lg border border-black/10 bg-white px-3 py-2.5 text-sm" />
+      <span class="text-xs text-brand-ink/50">Shown before/behind the hero video.</span>
+    </label>
+
+    <div class="flex flex-wrap items-center gap-3 border-t border-black/10 pt-5">
+      <button type="submit" name="action" value="save"
+        class="rounded-full bg-brand-green px-5 py-2.5 text-sm font-bold text-white hover:bg-brand-green-700">
+        Save draft
+      </button>
+      <button type="submit" name="action" value="publish"
+        class="rounded-full bg-brand-gold px-5 py-2.5 text-sm font-bold text-brand-green-700 hover:bg-brand-gold-300">
+        Publish
+      </button>
+      <a href="/?preview=1" target="_blank" class="text-sm font-semibold text-brand-green hover:text-brand-gold">
+        Preview draft ↗
+      </a>
+    </div>
+  </form>
+</Admin>

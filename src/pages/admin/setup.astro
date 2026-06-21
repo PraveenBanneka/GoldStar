@@ -1,0 +1,79 @@
+---
+import Admin from '../../layouts/Admin.astro';
+import {
+  countUsers,
+  createUser,
+  verifyLogin,
+  createSession,
+  SESSION_COOKIE,
+  sessionCookieOptions,
+} from '../../lib/auth';
+import { getDB } from '../../lib/cf';
+
+const db = getDB();
+let error = '';
+
+// First-run only: once an admin exists, this page is closed.
+if (db && (await countUsers(db)) > 0) {
+  return Astro.redirect('/admin/login');
+}
+
+if (Astro.request.method === 'POST') {
+  if (!db) {
+    error = 'Database not available.';
+  } else {
+    const form = await Astro.request.formData();
+    const username = String(form.get('username') ?? '').trim();
+    const password = String(form.get('password') ?? '');
+    const confirm = String(form.get('confirm') ?? '');
+    if (username.length < 3) error = 'Username must be at least 3 characters.';
+    else if (password.length < 8) error = 'Password must be at least 8 characters.';
+    else if (password !== confirm) error = 'Passwords do not match.';
+    else {
+      await createUser(db, username, password);
+      const user = await verifyLogin(db, username, password);
+      if (user) {
+        Astro.cookies.set(SESSION_COOKIE, await createSession(db, user.id), sessionCookieOptions());
+        return Astro.redirect('/admin');
+      }
+      error = 'Could not create the account.';
+    }
+  }
+}
+---
+
+<Admin title="Set up admin" chrome={false}>
+  <div class="mx-auto mt-10 max-w-md rounded-2xl bg-white p-8 shadow-sm ring-1 ring-black/5">
+    <h1 class="font-heading text-2xl font-extrabold text-brand-green">Create your admin account</h1>
+    <p class="mt-2 text-sm text-brand-ink/70">
+      This is a one-time setup. The first account becomes the site administrator.
+    </p>
+
+    {error && (
+      <p class="mt-4 rounded-lg bg-red-50 px-3 py-2 text-sm font-medium text-red-700">{error}</p>
+    )}
+
+    <form method="POST" class="mt-6 grid gap-4">
+      <div>
+        <label for="username" class="block text-sm font-semibold">Username</label>
+        <input id="username" name="username" type="text" required autocomplete="username"
+          class="mt-1 w-full rounded-lg border border-black/10 bg-white px-3 py-2.5 text-sm" />
+      </div>
+      <div>
+        <label for="password" class="block text-sm font-semibold">Password</label>
+        <input id="password" name="password" type="password" required autocomplete="new-password"
+          class="mt-1 w-full rounded-lg border border-black/10 bg-white px-3 py-2.5 text-sm" />
+        <p class="mt-1 text-xs text-brand-ink/50">At least 8 characters.</p>
+      </div>
+      <div>
+        <label for="confirm" class="block text-sm font-semibold">Confirm password</label>
+        <input id="confirm" name="confirm" type="password" required autocomplete="new-password"
+          class="mt-1 w-full rounded-lg border border-black/10 bg-white px-3 py-2.5 text-sm" />
+      </div>
+      <button type="submit"
+        class="mt-2 rounded-full bg-brand-green px-6 py-3 font-bold text-white transition hover:bg-brand-green-700">
+        Create account
+      </button>
+    </form>
+  </div>
+</Admin>

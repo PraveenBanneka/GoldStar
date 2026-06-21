@@ -1,0 +1,47 @@
+---
+import { getPortfolio } from '../content/site/portfolio';
+import { siteContext } from '../lib/runtime';
+const { db, opts } = siteContext(Astro);
+const items = await getPortfolio(db, opts);
+---
+
+<section id="portfolio" class="bg-white py-20 md:py-28">
+  <div class="mx-auto max-w-7xl px-5 md:px-8">
+    <div class="mx-auto max-w-2xl text-center">
+      <p class="font-heading text-sm font-bold uppercase tracking-widest text-brand-gold">Our work</p>
+      <h2 class="mt-2 font-heading text-3xl font-extrabold text-brand-green sm:text-4xl">
+        Recent projects around the Austin metro
+      </h2>
+      <p class="mt-4 text-base leading-relaxed text-brand-ink/70">
+        Every photo below is real Goldstar work — stone edging, drainage, sod, flagstone and design-build.
+      </p>
+    </div>
+
+    <ul class="mt-12 grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 md:grid-cols-3 lg:grid-cols-4">
+      {items.map((item) => (
+        <li class="group relative overflow-hidden rounded-xl ring-1 ring-black/5">
+          <img
+            src={item.image}
+            alt={item.alt}
+            loading="lazy"
+            decoding="async"
+            class="aspect-square h-full w-full object-cover transition duration-500 group-hover:scale-105"
+          />
+          <div class="pointer-events-none absolute inset-0 flex items-end bg-gradient-to-t from-black/70 via-black/0 to-black/0 opacity-0 transition group-hover:opacity-100">
+            <div class="p-3">
+              <span class="inline-block rounded bg-brand-gold/90 px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide text-brand-green-700">
+                {item.category}
+              </span>
+              <p class="mt-1 text-xs font-medium leading-snug text-white">{item.alt}</p>
+            </div>
+          </div>
+        </li>
+      ))}
+    </ul>
+
+    <p class="mt-8 text-center text-sm text-brand-ink/60">
+      See more on our
+      <a href="https://www.facebook.com/goldstarlandscaping.net" class="font-semibold text-brand-green underline underline-offset-2 hover:text-brand-gold">Facebook page</a>.
+    </p>
+  </div>
+</section>

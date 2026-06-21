@@ -1,0 +1,71 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title?: string;
+  /** When false (login/setup), the nav bar with section links + logout is hidden. */
+  chrome?: boolean;
+}
+const { title = 'Goldstar Admin', chrome = true } = Astro.props;
+const user = Astro.locals.user;
+
+const navLinks = [
+  { label: 'Dashboard', href: '/admin' },
+  { label: 'Hero', href: '/admin/hero' },
+  { label: 'Services', href: '/admin/services' },
+  { label: 'Portfolio', href: '/admin/portfolio' },
+  { label: 'Reviews', href: '/admin/reviews' },
+  { label: 'About', href: '/admin/about' },
+  { label: 'Business', href: '/admin/business' },
+  { label: 'Users', href: '/admin/users' },
+];
+const here = Astro.url.pathname;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>{title}</title>
+  </head>
+  <body class="min-h-screen bg-brand-cream font-body text-brand-ink">
+    {chrome && user && (
+      <header class="bg-brand-green text-white">
+        <div class="mx-auto flex max-w-6xl flex-wrap items-center gap-x-5 gap-y-2 px-4 py-3">
+          <a href="/admin" class="font-heading text-lg font-extrabold">
+            Goldstar <span class="text-brand-gold-300">Admin</span>
+          </a>
+          <nav class="flex flex-wrap gap-x-4 gap-y-1 text-sm">
+            {navLinks.slice(1).map((l) => (
+              <a
+                href={l.href}
+                class:list={[
+                  'rounded px-1.5 py-0.5 transition hover:text-brand-gold-300',
+                  here === l.href && 'text-brand-gold-300 underline underline-offset-4',
+                ]}
+              >
+                {l.label}
+              </a>
+            ))}
+          </nav>
+          <div class="ml-auto flex items-center gap-3 text-sm">
+            <a href="/" target="_blank" class="hover:text-brand-gold-300">View site ↗</a>
+            <span class="text-white/60">·</span>
+            <span class="text-white/80">{user.username}</span>
+            <form method="POST" action="/admin/logout" class="inline">
+              <button type="submit" class="rounded bg-white/15 px-3 py-1 font-semibold hover:bg-white/25">
+                Log out
+              </button>
+            </form>
+          </div>
+        </div>
+      </header>
+    )}
+
+    <main class="mx-auto max-w-6xl px-4 py-8">
+      <slot />
+    </main>
+  </body>
+</html>

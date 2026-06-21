@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+  <!-- white halo under the metal parts, for visibility on any background -->
+  <g fill="none" stroke="#ffffff" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M7.5 3.5 L12.5 8.5"/>
+    <path d="M5.5 5.5 L10.5 10.5"/>
+    <path d="M3.5 7.5 L8.5 12.5"/>
+    <path d="M8.5 12.5 L12.5 8.5"/>
+    <path d="M10.5 10.5 L18.5 18.5"/>
+  </g>
+
+  <!-- wooden bulb handle (rounded, fatter at the end) with its own outline -->
+  <ellipse cx="24.5" cy="24.5" rx="6" ry="4" transform="rotate(45 24.5 24.5)"
+           fill="#a9783f" stroke="#ffffff" stroke-width="2" paint-order="stroke"/>
+
+  <!-- steel shaft -->
+  <path d="M10.5 10.5 L18.5 18.5" fill="none" stroke="#9aa0a6" stroke-width="3" stroke-linecap="round"/>
+  <!-- metal collar / ferrule where the handle meets the head -->
+  <path d="M17.5 17.5 L20.5 20.5" fill="none" stroke="#7f868c" stroke-width="4.6" stroke-linecap="round"/>
+
+  <!-- three steel tines + crossbar (the fork head) -->
+  <g fill="none" stroke="#9aa0a6" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M7.5 3.5 L12.5 8.5"/>
+    <path d="M5.5 5.5 L10.5 10.5"/>
+    <path d="M3.5 7.5 L8.5 12.5"/>
+    <path d="M8.5 12.5 L12.5 8.5"/>
+  </g>
+</svg>

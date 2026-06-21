@@ -1,0 +1,76 @@
+@import "tailwindcss";
+
+/*
+  Goldstar Landscaping brand tokens (Tailwind v4 @theme).
+  Colors extracted from the existing site's CSS via Firecrawl branding (see
+  ../SCRAPE_NOTES.md §2): deep forest green wordmark + goldenrod star.
+  These tokens generate utilities like bg-brand-green / text-brand-gold / font-heading.
+*/
+@theme {
+  --color-brand-green: #244435;
+  --color-brand-green-700: #1c3729;
+  --color-brand-green-300: #4a7d63;
+  --color-brand-gold: #d7ab00;
+  --color-brand-gold-300: #e9c64a;
+  --color-brand-cream: #f7f5ef;
+  --color-brand-ink: #1a1f1c;
+
+  --font-heading: "Montserrat", ui-sans-serif, system-ui, sans-serif;
+  --font-body: "Open Sans", ui-sans-serif, system-ui, sans-serif;
+}
+
+/*
+  Custom landscaping cursor: a brand-gold garden fork. Hotspot is at the tines
+  (5 5). Applied site-wide — including clickable elements so the tool is always
+  visible — with a sensible keyword fallback if the SVG cursor can't load.
+  Form fields keep the text caret for usability.
+*/
+body,
+a,
+button,
+[role="button"],
+summary,
+label {
+  cursor: url('/cursors/fork.svg') 4 4, pointer;
+}
+
+input,
+textarea,
+select {
+  cursor: auto;
+}
+
+/* Base element defaults */
+html {
+  scroll-behavior: smooth;
+  font-family: var(--font-body);
+  color: var(--color-brand-ink);
+}
+
+body {
+  margin: 0;
+  background: #ffffff;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+}
+
+/* Respect users who prefer reduced motion: kill smooth scroll + animations */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Visible focus state on every interactive element (accessibility, brief §11) */
+:where(a, button, input, textarea, select):focus-visible {
+  outline: 3px solid var(--color-brand-gold);
+  outline-offset: 2px;
+  border-radius: 2px;
+}

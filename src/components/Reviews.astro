@@ -1,0 +1,45 @@
+---
+import { getReviews } from '../content/site/reviews';
+import { getBusiness } from '../content/site/business';
+import { siteContext } from '../lib/runtime';
+const { db, opts } = siteContext(Astro);
+const reviews = await getReviews(db, opts);
+const business = await getBusiness(db, opts);
+---
+
+<section id="reviews" class="bg-brand-cream py-20 md:py-28">
+  <div class="mx-auto max-w-7xl px-5 md:px-8">
+    <div class="mx-auto max-w-2xl text-center">
+      <p class="font-heading text-sm font-bold uppercase tracking-widest text-brand-gold">Reviews</p>
+      <h2 class="mt-2 font-heading text-3xl font-extrabold text-brand-green sm:text-4xl">
+        What our neighbors say
+      </h2>
+      <div class="mt-4 flex items-center justify-center gap-2">
+        <span class="text-lg text-brand-gold" aria-hidden="true">★★★★★</span>
+        <span class="text-sm font-semibold text-brand-ink/80">
+          {business.rating.value} of 5 · {business.rating.count} reviews on
+          <a href={business.rating.sourceHref} class="text-brand-green underline underline-offset-2 hover:text-brand-gold">{business.rating.source}</a>
+        </span>
+      </div>
+    </div>
+
+    <ul class="mt-12 columns-1 gap-5 sm:columns-2 lg:columns-3 [&>li]:mb-5">
+      {reviews.map((r) => (
+        <li class="break-inside-avoid rounded-2xl bg-white p-6 shadow-sm ring-1 ring-black/5">
+          <div class="flex items-center justify-between">
+            <span class="text-brand-gold" aria-label={`${r.rating} out of 5 stars`}>
+              {'★'.repeat(r.rating)}
+            </span>
+            {r.verified && (
+              <span class="rounded-full bg-brand-green/10 px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide text-brand-green">
+                Verified
+              </span>
+            )}
+          </div>
+          <p class="mt-3 text-sm leading-relaxed text-brand-ink/80">“{r.text}”</p>
+          <p class="mt-4 font-heading text-sm font-bold text-brand-green">— {r.author}</p>
+        </li>
+      ))}
+    </ul>
+  </div>
+</section>

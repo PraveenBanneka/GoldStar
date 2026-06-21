@@ -1,0 +1,48 @@
+---
+import { getAbout } from '../content/site/about';
+import { getBusiness } from '../content/site/business';
+import { siteContext } from '../lib/runtime';
+const { db, opts } = siteContext(Astro);
+const about = await getAbout(db, opts);
+const business = await getBusiness(db, opts);
+---
+
+<section id="about" class="bg-brand-green py-20 text-white md:py-28">
+  <div class="mx-auto grid max-w-7xl items-center gap-12 px-5 md:grid-cols-2 md:px-8">
+    <div class="overflow-hidden rounded-2xl ring-1 ring-white/10">
+      <img
+        src="/images/portfolio/limestone-tree-ring-planters.jpg"
+        alt="Raised limestone planter rings built by Goldstar Landscaping"
+        loading="lazy"
+        decoding="async"
+        class="h-full w-full object-cover"
+      />
+    </div>
+
+    <div>
+      <p class="font-heading text-sm font-bold uppercase tracking-widest text-brand-gold-300">About Goldstar</p>
+      <h2 class="mt-2 font-heading text-3xl font-extrabold sm:text-4xl">{about.heading}</h2>
+      <p class="mt-5 text-lg leading-relaxed text-white/90">{about.lead}</p>
+      {about.paragraphs.map((p) => (
+        <p class="mt-4 text-base leading-relaxed text-white/80">{p}</p>
+      ))}
+
+      <dl class="mt-8 grid grid-cols-3 gap-4">
+        {about.highlights.map((h) => (
+          <div class="rounded-xl bg-white/5 p-4 text-center ring-1 ring-white/10">
+            <dt class="sr-only">{h.label}</dt>
+            <dd class="font-heading text-2xl font-extrabold text-brand-gold-300">{h.value}</dd>
+            <p class="mt-1 text-xs leading-tight text-white/70">{h.label}</p>
+          </div>
+        ))}
+      </dl>
+
+      <a
+        href="#contact"
+        class="mt-8 inline-block rounded-full bg-brand-gold px-7 py-3 text-base font-bold text-brand-green-700 transition hover:bg-brand-gold-300"
+      >
+        Work with {business.name.split(' ')[0]}
+      </a>
+    </div>
+  </div>
+</section>

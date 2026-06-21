@@ -1,0 +1,70 @@
+---
+import Admin from '../../layouts/Admin.astro';
+import {
+  countUsers,
+  verifyLogin,
+  createSession,
+  SESSION_COOKIE,
+  sessionCookieOptions,
+} from '../../lib/auth';
+import { getDB } from '../../lib/cf';
+
+const db = getDB();
+let error = '';
+
+// No accounts yet → send them to first-run setup.
+if (db && (await countUsers(db)) === 0) {
+  return Astro.redirect('/admin/setup');
+}
+
+// Already logged in → straight to the dashboard.
+if (Astro.locals.user) {
+  return Astro.redirect('/admin');
+}
+
+if (Astro.request.method === 'POST') {
+  if (!db) {
+    error = 'Database not available.';
+  } else {
+    const form = await Astro.request.formData();
+    const username = String(form.get('username') ?? '');
+    const password = String(form.get('password') ?? '');
+    const user = await verifyLogin(db, username, password);
+    if (user) {
+      Astro.cookies.set(SESSION_COOKIE, await createSession(db, user.id), sessionCookieOptions());
+      return Astro.redirect('/admin');
+    }
+    error = 'Invalid username or password.';
+  }
+}
+---
+
+<Admin title="Admin login" chrome={false}>
+  <div class="mx-auto mt-12 max-w-sm rounded-2xl bg-white p-8 shadow-sm ring-1 ring-black/5">
+    <h1 class="font-heading text-2xl font-extrabold text-brand-green">
+      Goldstar <span class="text-brand-gold">Admin</span>
+    </h1>
+    <p class="mt-2 text-sm text-brand-ink/70">Log in to edit your site.</p>
+
+    {error && (
+      <p class="mt-4 rounded-lg bg-red-50 px-3 py-2 text-sm font-medium text-red-700">{error}</p>
+    )}
+
+    <form method="POST" class="mt-6 grid gap-4">
+      <div>
+        <label for="username" class="block text-sm font-semibold">Username</label>
+        <input id="username" name="username" type="text" required autocomplete="username"
+          class="mt-1 w-full rounded-lg border border-black/10 bg-white px-3 py-2.5 text-sm" />
+      </div>
+      <div>
+        <label for="password" class="block text-sm font-semibold">Password</label>
+        <input id="password" name="password" type="password" required autocomplete="current-password"
+          class="mt-1 w-full rounded-lg border border-black/10 bg-white px-3 py-2.5 text-sm" />
+      </div>
+      <button type="submit"
+        class="mt-2 rounded-full bg-brand-green px-6 py-3 font-bold text-white transition hover:bg-brand-green-700">
+        Log in
+      </button>
+    </form>
+  </div>
+</Admin>

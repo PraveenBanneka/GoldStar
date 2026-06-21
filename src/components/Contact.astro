@@ -1,0 +1,95 @@
+---
+import { getBusiness } from '../content/site/business';
+import { siteContext } from '../lib/runtime';
+const { db, opts } = siteContext(Astro);
+const business = await getBusiness(db, opts);
+---
+
+<section id="contact" class="bg-white py-20 md:py-28">
+  <div class="mx-auto grid max-w-7xl gap-12 px-5 md:grid-cols-2 md:px-8">
+    <!-- Contact details -->
+    <div>
+      <p class="font-heading text-sm font-bold uppercase tracking-widest text-brand-gold">Get in touch</p>
+      <h2 class="mt-2 font-heading text-3xl font-extrabold text-brand-green sm:text-4xl">
+        Let’s begin your project
+      </h2>
+      <p class="mt-4 text-base leading-relaxed text-brand-ink/70">
+        Tell us about your yard and we’ll swing by for a customized free quote. Prefer to talk now?
+        Call or text — we respond fast.
+      </p>
+
+      <dl class="mt-8 space-y-5">
+        <div class="flex items-start gap-3">
+          <span aria-hidden="true" class="text-xl">📞</span>
+          <div>
+            <dt class="text-xs font-bold uppercase tracking-wide text-brand-ink/50">Phone</dt>
+            <dd><a href={business.phoneHref} class="text-lg font-semibold text-brand-green hover:text-brand-gold">{business.phoneDisplay}</a></dd>
+          </div>
+        </div>
+        <div class="flex items-start gap-3">
+          <span aria-hidden="true" class="text-xl">✉️</span>
+          <div>
+            <dt class="text-xs font-bold uppercase tracking-wide text-brand-ink/50">Email</dt>
+            <dd><a href={`mailto:${business.email}`} class="text-lg font-semibold text-brand-green hover:text-brand-gold">{business.email}</a></dd>
+          </div>
+        </div>
+        <div class="flex items-start gap-3">
+          <span aria-hidden="true" class="text-xl">🕑</span>
+          <div>
+            <dt class="text-xs font-bold uppercase tracking-wide text-brand-ink/50">Hours</dt>
+            <dd class="text-base text-brand-ink/80">{business.hours}</dd>
+          </div>
+        </div>
+        <div class="flex items-start gap-3">
+          <span aria-hidden="true" class="text-xl">📍</span>
+          <div>
+            <dt class="text-xs font-bold uppercase tracking-wide text-brand-ink/50">Service area</dt>
+            <dd class="text-base text-brand-ink/80">{business.serviceArea.join(', ')} &amp; neighboring cities</dd>
+          </div>
+        </div>
+      </dl>
+    </div>
+
+    <!--
+      Contact form. Phase 1: posts to a placeholder endpoint (no backend yet).
+      Wire to a real handler (Cloudflare Worker / Formspree / etc.) before launch.
+    -->
+    <form
+      action="#"
+      method="post"
+      class="rounded-2xl bg-brand-cream p-6 ring-1 ring-black/5 sm:p-8"
+    >
+      <div class="grid gap-4">
+        <div>
+          <label for="name" class="block text-sm font-semibold text-brand-ink">Name</label>
+          <input id="name" name="name" type="text" required autocomplete="name"
+            class="mt-1 w-full rounded-lg border border-black/10 bg-white px-3 py-2.5 text-sm focus:border-brand-green" />
+        </div>
+        <div class="grid gap-4 sm:grid-cols-2">
+          <div>
+            <label for="email" class="block text-sm font-semibold text-brand-ink">Email</label>
+            <input id="email" name="email" type="email" required autocomplete="email"
+              class="mt-1 w-full rounded-lg border border-black/10 bg-white px-3 py-2.5 text-sm focus:border-brand-green" />
+          </div>
+          <div>
+            <label for="phone" class="block text-sm font-semibold text-brand-ink">Phone</label>
+            <input id="phone" name="phone" type="tel" autocomplete="tel"
+              class="mt-1 w-full rounded-lg border border-black/10 bg-white px-3 py-2.5 text-sm focus:border-brand-green" />
+          </div>
+        </div>
+        <div>
+          <label for="message" class="block text-sm font-semibold text-brand-ink">Project details</label>
+          <textarea id="message" name="message" rows="4" required
+            class="mt-1 w-full rounded-lg border border-black/10 bg-white px-3 py-2.5 text-sm focus:border-brand-green"></textarea>
+        </div>
+        <button type="submit"
+          class="mt-1 w-full rounded-full bg-brand-gold px-6 py-3 text-base font-bold text-brand-green-700 transition hover:bg-brand-gold-300">
+          Request a free quote
+        </button>
+        <p class="text-center text-xs text-brand-ink/50">
+          Or call <a href={business.phoneHref} class="font-semibold text-brand-green hover:text-brand-gold">{business.phoneDisplay}</a> — we usually reply same day.
+        </p>
+      </div>
+    </form>
+  </div>
+</section>

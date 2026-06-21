@@ -1,0 +1,41 @@
+---
+import { getBusiness } from '../content/site/business';
+import { siteContext } from '../lib/runtime';
+const { db, opts } = siteContext(Astro);
+const business = await getBusiness(db, opts);
+
+const links = [
+  { label: 'Services', href: '#services' },
+  { label: 'Our Work', href: '#portfolio' },
+  { label: 'Reviews', href: '#reviews' },
+  { label: 'About', href: '#about' },
+  { label: 'Contact', href: '#contact' },
+];
+---
+
+<header class="absolute inset-x-0 top-0 z-30">
+  <nav class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-4 md:px-8">
+    <a href="#top" class="flex items-center gap-2 rounded bg-white/90 px-3 py-1.5 shadow-sm">
+      <img src={business.logo} alt={`${business.name} logo`} width="150" height="40" class="h-8 w-auto" />
+    </a>
+
+    <ul class="hidden items-center gap-7 lg:flex">
+      {links.map((l) => (
+        <li>
+          <a href={l.href} class="text-sm font-semibold text-white drop-shadow transition hover:text-brand-gold-300">
+            {l.label}
+          </a>
+        </li>
+      ))}
+    </ul>
+
+    <a
+      href={business.phoneHref}
+      class="inline-flex items-center gap-2 rounded-full bg-brand-gold px-4 py-2 text-sm font-bold text-brand-green-700 shadow-md transition hover:bg-brand-gold-300"
+    >
+      <span aria-hidden="true">📞</span>
+      <span class="hidden sm:inline">{business.phoneDisplay}</span>
+      <span class="sm:hidden">Call</span>
+    </a>
+  </nav>
+</header>

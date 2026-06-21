@@ -1,0 +1,41 @@
+---
+import Base from '../layouts/Base.astro';
+import Footer from '../components/Footer.astro';
+import { getBusiness } from '../content/site/business';
+import { siteContext } from '../lib/runtime';
+const { db, opts } = siteContext(Astro);
+const business = await getBusiness(db, opts);
+const updated = 'June 2026';
+---
+
+<Base title={`Terms of Service | ${business.name}`} description={`Terms of service for ${business.name}.`}>
+  <main class="mx-auto max-w-3xl px-5 py-20 md:px-8">
+    <a href="/" class="text-sm font-semibold text-brand-green hover:text-brand-gold">← Back to home</a>
+    <h1 class="mt-6 font-heading text-4xl font-extrabold text-brand-green">Terms of Service</h1>
+    <p class="mt-2 text-sm text-brand-ink/50">Last updated: {updated}</p>
+
+    <div class="mt-8 space-y-5 text-base leading-relaxed text-brand-ink/80">
+      <p>
+        These terms govern your use of the {business.name} website. <strong>This is placeholder
+        boilerplate — review with a professional before launch.</strong>
+      </p>
+      <h2 class="font-heading text-xl font-bold text-brand-green">Use of this site</h2>
+      <p>
+        Content on this site is provided for general information about our landscaping services.
+        Quotes and project scope are confirmed in writing before any work begins.
+      </p>
+      <h2 class="font-heading text-xl font-bold text-brand-green">No warranty</h2>
+      <p>
+        This website is provided “as is” without warranties of any kind. Photographs depict completed
+        Goldstar Landscaping projects; results vary by site conditions.
+      </p>
+      <h2 class="font-heading text-xl font-bold text-brand-green">Contact</h2>
+      <p>
+        Questions about these terms? Email
+        <a href={`mailto:${business.email}`} class="font-semibold text-brand-green underline underline-offset-2 hover:text-brand-gold">{business.email}</a>
+        or call <a href={business.phoneHref} class="font-semibold text-brand-green underline underline-offset-2 hover:text-brand-gold">{business.phoneDisplay}</a>.
+      </p>
+    </div>
+  </main>
+  <Footer />
+</Base>

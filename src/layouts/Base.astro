@@ -1,0 +1,70 @@
+---
+import '../styles/global.css';
+import { getBusiness } from '../content/site/business';
+import { siteContext } from '../lib/runtime';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const { db, opts } = siteContext(Astro);
+const business = await getBusiness(db, opts);
+const {
+  title = `${business.name} | Landscaping & Hardscaping in Central Texas`,
+  description = `${business.name} — design-build landscaping, hardscaping, drainage and sod serving Austin, Round Rock, Georgetown and the greater Austin metro. ${business.yearsInBusiness} of premium outdoor work. Call ${business.phoneDisplay}.`,
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/jpeg" href={business.logo} />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+
+    <!-- Open Graph / social -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={business.logo} />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <!-- Fonts: Montserrat (headings) + Open Sans (body), carried from the brand -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Open+Sans:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- LocalBusiness structured data (real, verifiable fields only) -->
+    <script
+      type="application/ld+json"
+      set:html={JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'LandscapingBusiness',
+        name: business.name,
+        telephone: business.phoneDisplay,
+        email: business.email,
+        areaServed: business.serviceArea,
+        address: { '@type': 'PostalAddress', addressLocality: 'Georgetown', addressRegion: 'TX', addressCountry: 'US' },
+        aggregateRating: {
+          '@type': 'AggregateRating',
+          ratingValue: business.rating.value,
+          reviewCount: business.rating.count,
+        },
+      })}
+    />
+  </head>
+  <body class="font-body text-brand-ink antialiased">
+    {opts.preview && (
+      <div class="fixed bottom-3 left-1/2 z-50 -translate-x-1/2 rounded-full bg-brand-gold px-4 py-2 text-xs font-bold text-brand-green-700 shadow-lg">
+        Draft preview · <a href="/admin" class="underline">back to admin</a>
+      </div>
+    )}
+    <slot />
+  </body>
+</html>
