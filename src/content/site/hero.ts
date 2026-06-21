@@ -22,7 +22,7 @@ const hero: Hero = {
     'Retaining walls, paver patios, stone work, drainage and design-build — crafted by a crew known for detail and follow-through across the Austin metro.',
   primaryCta: { label: 'Get a free design consult', href: '#contact' },
   secondaryCta: { label: 'Call (512) 400-8451', href: 'tel:+15124008451' },
-  poster: '/images/hero-poster.jpg',
+  poster: '/images/hero-poster-new.jpg',
   // TODO: add /public/video/hero.webm + hero.mp4 (1080p, <5MB, ~10s loop, no audio).
   videoSources: [
     { src: '/video/hero.webm', type: 'video/webm' },

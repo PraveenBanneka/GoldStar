@@ -6,30 +6,12 @@ const hero = await getHero(db, opts);
 ---
 
 <section id="top" class="relative flex min-h-[100svh] items-center justify-center overflow-hidden">
-  <!--
-    Background video. Goldstar has no footage yet, so the poster (a real project
-    photo) shows until /public/video/hero.{webm,mp4} are added. prefers-reduced-motion
-    users never get the autoplay — the poster image carries the hero. (BRIEF §10)
-  -->
-  <video
-    class="absolute inset-0 h-full w-full object-cover motion-reduce:hidden"
-    autoplay
-    muted
-    loop
-    playsinline
-    preload="auto"
-    poster={hero.poster}
-    aria-hidden="true"
-  >
-    {hero.videoSources.map((s) => <source src={s.src} type={s.type} />)}
-  </video>
-
-  <!-- Poster fallback for reduced-motion users (and before the video loads) -->
+  <!-- Static hero background image -->
   <img
     src={hero.poster}
     alt=""
     aria-hidden="true"
-    class="absolute inset-0 hidden h-full w-full object-cover motion-reduce:block"
+    class="absolute inset-0 h-full w-full object-cover"
   />
 
   <!-- Legibility overlay -->

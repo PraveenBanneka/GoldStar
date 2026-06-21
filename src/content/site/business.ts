@@ -66,7 +66,7 @@ const business: Business = {
       href: 'https://www.thumbtack.com/tx/georgetown/lawn-care/gold-star-landscaping/service/447043822060593154',
     },
   ],
-  logo: '/images/brand/GSL-Logo.jpg',
+  logo: '/images/brand/GSL-Logo-v2.png',
 };
 
 export async function getBusiness(
