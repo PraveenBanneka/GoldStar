@@ -3,6 +3,7 @@
 	"compatibility_date": "2026-06-20",
 	"compatibility_flags": ["global_fetch_strictly_public"],
 	"name": "goldstar-site",
+ "account_id": "c5cbb437aa4110959743103293128f2e",
 	"main": "@astrojs/cloudflare/entrypoints/server",
 	"assets": {
 		"directory": "./dist",
